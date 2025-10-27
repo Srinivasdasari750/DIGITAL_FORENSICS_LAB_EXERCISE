@@ -1,70 +1,100 @@
 # 🧪 Ex-6.No. — Sleuth Kit: Analyzing Digital Evidence Using Command-Line Tools  
 
 ## 🎯 Aim  
-To learn and perform **digital evidence analysis using the Sleuth Kit (TSK)** by examining disk images, identifying partitions, recovering deleted data, and analyzing file system metadata through forensic investigation steps.
+To learn and perform **digital evidence analysis using the Sleuth Kit (TSK)** command-line utilities, including viewing partitions, listing files, recovering deleted data, and examining metadata from a forensic disk image.
 
 ---
 
 ## 📖 Description  
-**The Sleuth Kit (TSK)** is an open-source forensic toolkit that provides a set of command-line tools used for investigating and analyzing digital storage media.  
-It helps investigators identify partitions, analyze file systems, recover deleted files, and extract metadata such as file timestamps and ownership details.  
+**The Sleuth Kit (TSK)** is an open-source digital forensic toolkit that provides a collection of command-line tools for investigating disk images, file systems, and volumes.  
+It allows forensic examiners to extract information from evidence images such as partitions, deleted files, file metadata, and timestamps.
 
-TSK supports various file systems including **FAT, NTFS, EXT, HFS, and exFAT**.  
-It can work as a standalone toolkit or as the backend engine for the **Autopsy** forensic platform.  
+TSK supports file systems like FAT, NTFS, exFAT, EXT, and HFS.  
+It is often used alongside **Autopsy**, but can also be used independently for in-depth forensic analysis at the command line.
 
 ---
 
 ## 🛠️ Tools Required  
 - **The Sleuth Kit (TSK)** installed on your system  
-- A forensic image file (`.E01`, `.dd`, `.raw`)  
-- A system terminal or command prompt  
-- Text editor for report writing  
-- (Optional) **FTK Imager** to create forensic images  
-- Screenshots for each step  
+- A forensic disk image (`.E01`, `.dd`, `.raw`)  
+- **Terminal / Command Prompt**  
+- Text editor for documenting results  
+- (Optional) **FTK Imager** to create forensic image  
+- Screenshots of command executions and outputs  
 
 ---
 
 ## 📝 Procedure  
 
-### 🧩 Part 1 — Preparing and Verifying the Evidence  
-1. Open the forensic image file in The Sleuth Kit environment.  
-2. Verify the hash value of the image (MD5 or SHA1) to ensure authenticity.  
-3. Check the disk structure and identify all existing partitions and file systems.  
-4. Record the partition offsets, sizes, and types for documentation.  
+### 🧩 Part 1 — Verify and Prepare the Forensic Image  
 
-   ![Screenshot — Partition Table](https://github.com/user-attachments/assets/example_mmls_output.png)
+1. **Verify Image Integrity**  
+   Before starting, verify the hash value (MD5/SHA1) of the image file.  
+   ```bash
+   md5sum evidence.dd
+   sha1sum evidence.dd
+ Ensure the computed hash matches the acquisition log.
 
----
+2. **Identify File System and Partition Details**
+   Use the mmls tool to view partition layout:
+   ```bash
+   mmls evidence.dd
+  Output shows partition offsets, sizes, and types (FAT, NTFS, EXT, etc.).
+  
+### 🧩 Part 2 — Analyzing the File System
 
-### 🧩 Part 2 — File System Analysis  
-1. Access the selected partition based on the recorded offset information.  
-2. Examine the file structure to view directories and files stored in the partition.  
-3. Review the file attributes such as size, type, creation time, and modification time.  
-4. Analyze metadata information of critical or suspicious files for investigation.  
+1. **List File System Contents**
+   Use fls to list files and directories in a partition.
+   ```bash
+   fls -r -o <partition_offset> evidence.dd
+  -r: recursive listing
 
-   ![Screenshot — File System Analysis](https://github.com/user-attachments/assets/example_fls_output.png)
+  -o: offset (from mmls output)
 
----
+2. **Extract File Metadata**
+   Use "istat" to view metadata of a specific file (by inode number).
+    ```bash
+    istat -o <partition_offset> evidence.dd <inode_number>
+  Displays creation, modification, access times, size, and file type.
 
-### 🧩 Part 3 — Deleted File Recovery  
-1. Search for and identify files that have been deleted but still exist in the file system.  
-2. Recover selected deleted files to a secure folder for further examination.  
-3. Validate the integrity of the recovered files by comparing their hash values.  
-4. Document the recovered file names, locations, and evidence significance.  
+3. **View File Content**
+   Extract and view content using "icat":
+   ```bash
+   icat -o <partition_offset> evidence.dd <inode_number> > output.txt
+  Saves the recovered file content to output.txt.
+  
+### 🧩 Part 3 — File Recovery and Deleted Data
 
-   ![Screenshot — File Recovery](https://github.com/user-attachments/assets/example_recovery_output.png)
+1. **Search for Deleted Files**
+   Use fls and look for entries marked as deleted (*).
+   ```bash
+   fls -rd -o <partition_offset> evidence.dd
+  The -d flag lists deleted files. 
+  
+2. **Recover a Deleted File**
+   Use the inode number of the deleted file with icat:
+   ```bash
+   icat -o <partition_offset> evidence.dd <inode_number> > recovered.jpg
+  Saves the recovered file to the current directory.
+  
+3. **Verify the Recovered File**
+   Open or hash the recovered file to confirm integrity:
+   ```bash
+   md5sum recovered.jpg
 
----
+###🧩 Part 4 — Timeline and Activity Analysis
 
-### 🧩 Part 4 — Timeline and Activity Analysis  
-1. Collect all file system activity data such as creation, access, and modification times.  
-2. Generate a timeline to visualize user actions and file events in chronological order.  
-3. Review the timeline for unusual activity such as rapid deletions or file access patterns.  
-4. Record findings and observations that are relevant to the case.  
+1. **Generate a Body File (Timeline Data)**
+   Generate a Body File (Timeline Data)
+   ```bash
+   fls -m / -r -o <partition_offset> evidence.dd > bodyfile.txt
 
-   ![Screenshot — Timeline Report](https://github.com/user-attachments/assets/example_timeline_output.png)
+2. **Create a Timeline Report**
+   Convert the body file to a human-readable format using mactime:
+   ```bash
+   mactime -b bodyfile.txt > timeline.txt
+  View timeline.txt to analyze user activities based on file creation/modification times.
 
----
 
 ### 🧩 Part 5 — Reporting and Documentation  
 1. Compile all evidence findings including partition data, recovered files, and activity timelines.  
@@ -93,3 +123,5 @@ It can work as a standalone toolkit or as the backend engine for the **Autopsy**
 Successfully analyzed digital evidence using **The Sleuth Kit (TSK)**.  
 Partitions were identified, file systems examined, deleted data recovered, and a forensic timeline was created.  
 The experiment demonstrates the complete process of evidence analysis and reporting using Sleuth Kit.
+   
+
