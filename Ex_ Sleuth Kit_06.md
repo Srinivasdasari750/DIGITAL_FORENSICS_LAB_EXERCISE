@@ -29,56 +29,71 @@ It is often used alongside **Autopsy**, but can also be used independently for i
 ### 🧩 Part 1 — Verify and Prepare the Forensic Image  
 
 1. **Verify Image Integrity**  
-   Before starting, verify the hash value (MD5/SHA1) of the image file.  
+   Before starting, verify the hash value (MD5/SHA1) of the image file.
+    
    ```bash
    md5sum evidence.dd
    sha1sum evidence.dd
+   
  Ensure the computed hash matches the acquisition log.
 
 2. **Identify File System and Partition Details**
    Use the mmls tool to view partition layout:
+   
    ```bash
    mmls evidence.dd
+   
   Output shows partition offsets, sizes, and types (FAT, NTFS, EXT, etc.).
   
 ### 🧩 Part 2 — Analyzing the File System
 
 1. **List File System Contents**
    Use fls to list files and directories in a partition.
+   
    ```bash
    fls -r -o <partition_offset> evidence.dd
+   
   -r: recursive listing
 
   -o: offset (from mmls output)
 
 2. **Extract File Metadata**
    Use "istat" to view metadata of a specific file (by inode number).
+   
     ```bash
     istat -o <partition_offset> evidence.dd <inode_number>
+    
   Displays creation, modification, access times, size, and file type.
 
 3. **View File Content**
    Extract and view content using "icat":
+   
    ```bash
    icat -o <partition_offset> evidence.dd <inode_number> > output.txt
+   
   Saves the recovered file content to output.txt.
   
 ### 🧩 Part 3 — File Recovery and Deleted Data
 
 1. **Search for Deleted Files**
    Use fls and look for entries marked as deleted (*).
+   
    ```bash
    fls -rd -o <partition_offset> evidence.dd
+   
   The -d flag lists deleted files. 
   
 2. **Recover a Deleted File**
    Use the inode number of the deleted file with icat:
+   
    ```bash
    icat -o <partition_offset> evidence.dd <inode_number> > recovered.jpg
+   
   Saves the recovered file to the current directory.
   
 3. **Verify the Recovered File**
    Open or hash the recovered file to confirm integrity:
+   
    ```bash
    md5sum recovered.jpg
 
@@ -86,13 +101,16 @@ It is often used alongside **Autopsy**, but can also be used independently for i
 
 1. **Generate a Body File (Timeline Data)**
    Generate a Body File (Timeline Data)
+   
    ```bash
    fls -m / -r -o <partition_offset> evidence.dd > bodyfile.txt
 
-2. **Create a Timeline Report**
+3. **Create a Timeline Report**
    Convert the body file to a human-readable format using mactime:
+   
    ```bash
    mactime -b bodyfile.txt > timeline.txt
+   
   View timeline.txt to analyze user activities based on file creation/modification times.
 
 
