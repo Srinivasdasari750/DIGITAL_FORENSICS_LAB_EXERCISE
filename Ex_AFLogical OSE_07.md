@@ -52,6 +52,8 @@ To extract logical data from an Android device using **AFLogical OSE** (Open Sou
 4.  **Enable USB Debugging on the Android Device:**
     * Go to **Settings > About Phone** and tap **Build Number seven times** to enable Developer Options.
     * Go to **Settings > Developer Options** and enable **USB Debugging**.
+<img width="2816" height="1799" alt="Screenshot 2025-10-27 222907" src="https://github.com/user-attachments/assets/578050a4-5adc-40bf-8eab-bb9aab38876f" />
+
 
 ---
 
